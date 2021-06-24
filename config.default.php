@@ -18,3 +18,4 @@ function getconfig($item){
             'videopreview_brate1'=>'500k', #the bitrate for file bigger than 400M
         )[$item];
 }
+date_default_timezone_set("Asia/Shanghai");

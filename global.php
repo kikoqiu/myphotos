@@ -1,5 +1,4 @@
 <?php
-date_default_timezone_set("Asia/Shanghai");
 define('ISWIN', strtoupper(substr(PHP_OS,0,3))==='WIN');
 
 
