@@ -323,7 +323,7 @@ const App = {
     // 计算属性的 getter
     thumbs() {
       var ret=[];
-      var years=[];
+      var years=[new Date().getFullYear()];
       if(this.photos==null)return ret;
       var photos=this.photos.sort(function(a,b){
         var t=a[4]-b[4];
