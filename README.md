@@ -6,6 +6,10 @@ Photo gallery for personal use.
 * For both images and videos
 * PHP & sqlite
 * For both windows and linux
+# Install
+1. Install PHP server
+2. Visit kinstall.php
+
 
 # Demo
 ![PC VIEW](https://user-images.githubusercontent.com/5524046/123197618-5a6f3d80-d4de-11eb-973e-65a942aba585.PNG)
