@@ -88,7 +88,7 @@ function getimageinfo($img, $w=2000,$h=300,$thumbdir,$thumbonly=false){
 }
 
 
-function genVideoPreview($img,$thumbdir,$ffdir){
+function genVideoPreview($img,$thumbdir,$ffdir,$rest=0){
     if(!file_exists($thumbdir))mkdir($thumbdir);
 	$imgansi=toansi($img);
     $fname=basename($imgansi);
@@ -103,13 +103,22 @@ function genVideoPreview($img,$thumbdir,$ffdir){
     $ret=0;
     $infocmd='';
     $infojson='';
-    if(!file_exists($tgt) || filesize($imgansi)<=0){      
-       $infocmd="\"$ffdir/ffmpeg\" -y -i \"$imgansi\"  -vf \"scale=$videopreview_size\" -c:v libx264 -b:v $videopreview_brate -c:a copy \"$tgt\" 2>&1";
+    
+    $thd0=$thd1='';
+    if($rest>0){
+        $thd0=getconfig('videogenerateithread');
+        $thd1=getconfig('videogenerateothread');
+    }
+
+    $videogenerateparam=getconfig('videogenerateparam');
+    if(!file_exists($tgt) || filesize($tgt)<=0){      
+       $infocmd="\"$ffdir/ffmpeg\" -y $thd0 -i \"$imgansi\"  -vf \"scale=$videopreview_size\" $thd1 -c:v libx264 $videogenerateparam -b:v $videopreview_brate -c:a copy \"$tgt\" 2>&1";
 
         ob_start();        
         system($infocmd,$ret);
         $infojson=ob_get_contents();
         ob_end_clean();
+        if($rest>0)sleep($rest);
     }
     return array($ret,$tgt, "<pre> $infocmd \n $infojson</pre>");
 }

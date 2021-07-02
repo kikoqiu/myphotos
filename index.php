@@ -33,13 +33,15 @@
 
  @media (orientation: landscape) {
   .fullscreenmedia{
-    max-width:100%;max-height:95vh;min-height:80vh;
+    max-width:100%;
+    max-height:95vh;
+    min-height:80vh;
   }
 }
 
 @media (orientation: portrait) {
   .fullscreenmedia{
-    width:100%;    
+    width:100vw;    
   }
 }
 
@@ -634,20 +636,26 @@ myapp.component('photopreview', {
       endX:0,//结束触摸的位置
       disX:0,//移动距离
       slideEffect:'',
+      autoplay:false,
     }
   },
   components: {
   },
   template: `<div v-if='show'
-              style='position:fixed;width:100%;height:100%;z-index:999999;background-color:black;' @click='this.show=false'
+              style='position:fixed;width:100%;height:100%;z-index:999999;background-color:black;' 
               @touchstart='touchStart'
               @touchmove='touchMove'
               @touchend='touchEnd'
               >
+                <div style='z-index:9999999;position:absolute;margin:10px 0 0 calc( 100% - 100px );width:40px;height:40px;line-height:40px; text-align:center; border:2px solid gray; border-radius:20px;opacity:0.7;background-color:white;'
+                  @click='this.autoplay=!this.autoplay;'>{{'A'+(autoplay?'Y':'N')}}</div>
+                <div style='z-index:9999999;position:absolute;margin:10px 0 0 calc( 100% - 50px );width:40px;height:40px;line-height:40px; text-align:center; border:2px solid gray; border-radius:20px;opacity:0.7;background-color:white;'
+                  @click='this.show=false'>X</div>
+                
                 <div ref='ani' :style="slideEffect" >
-                    <div style='transition:opacity 0.4s ease' v-for="(m, index) in media" :key="m.mediaSrc"  :style="{'opacity':opacity[index]}" >
+                    <div style='transition:opacity 0.4s ease;display: flex;justify-content: center;align-items: center;' v-for="(m, index) in media" :key="m.mediaSrc"  :style="{'opacity':opacity[index]}" >
                       <img v-if='m.isImg' :src='m.mediaSrc' class='fullscreenmedia'/>
-                      <video v-if='!m.isImg' controls :src='m.mediaSrc' :poster='m.poster' class='fullscreenmedia'></video>
+                      <video v-if='!m.isImg' controls :src='m.mediaSrc' :poster='m.poster' class='fullscreenmedia' :autoplay="autoplay && index==0" @ended.native="onend"></video>
                     </div>                  
                 </div>
               </div>
@@ -675,7 +683,7 @@ myapp.component('photopreview', {
         }else{
           src= "getmediafile.php?pre=1&p="+encodeURIComponent(cur.p);
           if(off!=0){
-            src='';
+            //src='';
           }
         }
         
@@ -720,11 +728,14 @@ myapp.component('photopreview', {
       for(let i=0;i<this.media.length;++i){
         let diff=(tpos+off)/base;
         diff=1-Math.abs(diff);
-        if(diff>1)diff=0;
-        if(diff<0.1)diff=0.1;
+        if(diff>1)diff=1;
+        if(diff<0.3)diff=0.3;
         ret.push(diff);
-        if(this.$refs.ani!=null)
-        tpos+=this.$refs.ani.children[i].offsetHeight;
+        if(this.$refs.ani!=null){
+          tpos+=this.$refs.ani.children[i].offsetHeight;
+        }else{
+          tpos+=base/this.media.length;
+        }
         //if(i==0)ret.push(1);
         //if(i>=1)ret.push(0.2);
       }
@@ -743,7 +754,24 @@ myapp.component('photopreview', {
         }else{
           document.body.style.overflow='scroll';
           document.body.style['padding-right']=0;
+          //clearInterval(this.timer);this.timer=0;
+          this.autoplay=false;
         }
+      }
+    }
+  },
+  watch:{
+    autoplay(newval,oldval){
+      if(newval){
+        let that=this;
+        this.timer=setInterval(()=>{          
+          if(that.show && !!that.media[0].isImg){
+            that.onend();
+          }
+        },5000);
+      }else{
+        clearInterval(this.timer);
+        this.timer=0;
       }
     }
   },
@@ -778,6 +806,9 @@ myapp.component('photopreview', {
       let i0=this.curIndex0;
       let i1= this.curIndex1+1;
       this.slideEffect ='transition:all 0.4s ease;transform:translateY('+(-this.$refs.ani.children[0].offsetHeight)+'px);';
+      if(this.autoplay&& !this.media[1].isImg && !!this.$refs.ani.children[1].children[0]){
+        this.$refs.ani.children[1].children[0].play();
+      }
       setTimeout(()=>{
         this.setImg(i0,i1);
         this.slideEffect ='';
@@ -793,9 +824,14 @@ myapp.component('photopreview', {
       },400);
       
     },
+    onend(){
+      if(this.autoplay){
+        this.nextImg();
+      }
+    },
     touchStart:function(ev) {
       ev = ev || event;
-      ev.preventDefault();
+      //ev.preventDefault();
       if(ev.touches.length == 1) { //tounches类数组，等于1时表示此时有只有一只手指在触摸屏幕
        this.startX = ev.touches[0].clientY; // 记录开始位置
        console.log(this.startX);
@@ -820,11 +856,11 @@ myapp.component('photopreview', {
       if(this.endX-this.startX>20){
         this.prevImg();
         ev.preventDefault();
-      }else       if(this.endX-this.startX<-20){         
+      }else if(this.endX-this.startX<-20){         
         this.nextImg();
         ev.preventDefault();
       }else{
-        this.show=false;
+        //this.show=false;
       }
     }
   },

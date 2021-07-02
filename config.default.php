@@ -16,6 +16,10 @@ function getconfig($item){
             'videopreview_size'=>'iw/2:ih/2', #the video preview size
             'videopreview_brate'=>'1000k', #the bit rate for video file
             'videopreview_brate1'=>'500k', #the bitrate for file bigger than 400M
+            'videogenerateithread'=>'-threads 2',
+            'videogenerateothread'=>'-threads 2',
+            'sleepbetweenngenvideo'=>10,
+            'videogenerateparam'=>'-profile:v main -preset:v faster -level 2',
         )[$item];
 }
 date_default_timezone_set("Asia/Shanghai");

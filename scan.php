@@ -187,7 +187,7 @@ if(getconfig('scanvideo')){
         updatePhoto($img,$th[0],$th[1],$th[2],$th[3],R::isoDateTime($th[4]),json_encode($th[5]),$th[6],$photo); 
         
         if(getconfig('genvideopreview')){
-            $t=genVideoPreview($img,getconfig('vthumbdir'),getconfig('ffmpegdir'));
+            $t=genVideoPreview($img,getconfig('vthumbdir'),getconfig('ffmpegdir'),getconfig('sleepbetweenngenvideo'));
             if($t[0]!=0){
                 echo $t[2];
             }
