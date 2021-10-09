@@ -158,9 +158,7 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script>     
     window.photos=null;
-    axios.post('api.json', {
-    "m": 'photos'
-    }).then(response => {
+    axios.get('api.json').then(response => {
       window.photos=response.data;
       //console.log('photos', response.data)
     }, error => {
